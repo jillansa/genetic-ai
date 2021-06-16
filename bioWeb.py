@@ -21,12 +21,10 @@ app.config['SECRET_KEY'] = "lailolailo"
 app.debug = True
 toolbar = DebugToolbarExtension(app)
 
-
 # Controller to index
 @app.route('/')
 def home():
 	return render_template('index.html')
-
 
 # Controller to blast access
 @app.route('/blast_nucleotide', methods=["GET"])
@@ -79,14 +77,12 @@ def blast_nucleotide_post():
 	# response html with blastResult
 	return render_template('blast_nucleotide.html', configBlast=cb, blastResult=blastResult, listStatisticExecution=lse, plotImage='plot_' + str(hash) + '.png')
 
-
 # Controller to blast access
 @app.route('/blast_protein', methods=["GET"])
 def blast_protein():
 
 	cbp = ConfigBlastProtein()	
 	return render_template('blast_protein.html',configBlastProtein=cbp)
-
 
 # Controller to blastProtein request
 @app.route('/blast_protein', methods=["POST"])
@@ -102,13 +98,12 @@ def blast_protein_post():
 		app.countVectorizer, app.classifierMNB, app.statsMNB = createClassifierMNB(seq_data)
 
 	## mode process the secuences		
-	blastResultProtein = clasiffierMNB(cbp, app.countVectorizer, app.classifierMNB)	
+	blastResultProtein, statsPrediction = clasiffierMNB(cbp, app.countVectorizer, app.classifierMNB)	
 
 	clasiffierStats = app.classifierMNB
 		
 	# response html with blastResult
-	return render_template('blast_protein.html', configBlastProtein=cbp, blastResultProtein=blastResultProtein, statsMNB=app.statsMNB)
-
+	return render_template('blast_protein.html', configBlastProtein=cbp, blastResultProtein=blastResultProtein, statsMNB=app.statsMNB, statsPrediction=statsPrediction)
 
 # Controller to blast access
 @app.route('/blast_pathogen', methods=["GET"])
@@ -116,7 +111,6 @@ def blast_pathogen():
 
 	cbp = ConfigBlastPathogen()	
 	return render_template('blast_pathogen.html',configBlastPathogen=cbp)
-
 
 # Controller to blastProtein request
 @app.route('/blast_pathogen', methods=["POST"])
@@ -132,10 +126,10 @@ def blast_pathogen_post():
 		app.tokenizerLSTM, app.modelLSTM , app.statsLSTM, app.shortModelSummary = createClasiffierLSTM(seq_data)
 
 	## mode process the secuences		
-	blastResultPathogen = clasiffierLSTM(cbp, app.tokenizerLSTM, app.modelLSTM)	
+	blastResultPathogen, statsPrediction = clasiffierLSTM(cbp, app.tokenizerLSTM, app.modelLSTM)	
 		
 	# response html with blastResult
-	return render_template('blast_pathogen.html', configBlastPathogen=cbp, blastResultPathogen=blastResultPathogen, statsLSTM=app.statsLSTM, shortModelSummary = app.shortModelSummary)
+	return render_template('blast_pathogen.html', configBlastPathogen=cbp, blastResultPathogen=blastResultPathogen, statsLSTM=app.statsLSTM, shortModelSummary = app.shortModelSummary, statsPrediction=statsPrediction)
 
 # Controller to blast request
 @app.route('/openAxisPlot', methods=["POST"])

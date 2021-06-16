@@ -75,6 +75,7 @@
     </div>
     {% endif %}
     {% if blastResultProtein|length %}
+    <br>
     <div class="container">
 
         <b>Results:</b><br><br>
@@ -82,7 +83,9 @@
         <div class="row">
             The sequence is identified with the protein class: {{blastResultProtein}}
         </div>
-
+        <div class="row">
+            Time to prediction: {{statsPrediction}}
+        </div>
         <br>
 
         <div class="row"><b>Protein class table:</b></div>

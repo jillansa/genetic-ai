@@ -8,6 +8,7 @@
 
 import pandas as pd
 import numpy as np
+import time
 
 import tensorflow as tf
 from keras.models import Model, Sequential
@@ -26,7 +27,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from neuronal_helper import *
 
 def createClasiffierLSTM(seq_data):
+    time_fit = 0.0
+    time_test = 0.0
 
+    start_fit_time = time.time()
     seq_data['words'] = seq_data.apply(lambda x: getKmers(x['SEQUENCE'],6), axis=1)
     seq_data = seq_data.drop('SEQUENCE', axis=1)
 
@@ -38,13 +42,13 @@ def createClasiffierLSTM(seq_data):
 
     tokenizer = Tokenizer() 
     tokenizer.fit_on_texts(seq_texts) # tokenizer the word in each secuence
-    encoded_docs = tokenizer.texts_to_sequences(seq_texts) # Transform ¿unique? each token in a integer value
-    max_length = max([len(s) for s in encoded_docs]) # 18921 max langth of all secuences
+    encoded_docs = tokenizer.texts_to_sequences(seq_texts) # Transform unique each token in a integer value
+    max_length = max([len(s) for s in encoded_docs]) # 135 max langth of all secuences
     X = pad_sequences(encoded_docs, maxlen = max_length, padding = 'post') # the context is determinate in less 100 nucleotid
 
     X_train,X_test,y_train,y_test = train_test_split(X,labels,
                                                     test_size=0.20,random_state=42)
-    vocab_size = len(tokenizer.word_index) + 1
+    vocab_size = len(tokenizer.word_index) + 1 # Word padding
     print(X_train.shape)
     print(X_test.shape)
 
@@ -55,8 +59,9 @@ def createClasiffierLSTM(seq_data):
 
     model = Sequential()
     model.add(Embedding(vocab_size, 32))
-    model.add(LSTM(32))
+    model.add(Bidirectional(LSTM(32)))
     model.add(Dense(1, activation='sigmoid'))
+    
 
     model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'])
     #history_rnn = model.fit(texts_train, y_train, epochs=10, batch_size=60, validation_split=0.2)
@@ -72,11 +77,15 @@ def createClasiffierLSTM(seq_data):
     history = model.fit(X_train, y_train, 
                         epochs = epochs, verbose = 1, validation_split = 0.2, 
                         batch_size = 32)
+    final_fit_time = time.time()
+    time_fit = final_fit_time - start_fit_time
 
     pred = model.predict_classes(X_test)
+    final_test_time = time.time()
+    time_test = final_test_time - final_fit_time
     acc = model.evaluate(X_test, y_test)
 
-    print("Test loss is {0:.2f} accuracy is {1:.2f} % ".format(acc[0],acc[1]*100))
+    #print("Test accuracy is {1:.2f} % ".format(acc[1]*100))
     print(confusion_matrix(pred, y_test))
 
     statistics = "" 
@@ -84,11 +93,14 @@ def createClasiffierLSTM(seq_data):
     dfStats = pd.DataFrame(confusion_matrix(pred, y_test))
     statistics += "<div>" + dfStats.to_html() + "</div>"
     statistics += "<div> accuracy = "+str(acc[1]*100) + " % </div>"
+    statistics += "<div> time_fit = "+ str(time_fit) + " sg. </div>" 
+    statistics += "<div> time_test = "+ str(time_test) + " sg. </div>" 
 
     return tokenizer, model, statistics, short_model_summary
 
 def clasiffierLSTM(cbp, tokenizer, model):
 
+    start_pred_time = time.time()
     seq_texts = list(getKmers(cbp.querry_seq,6))
     seq_texts = ' '.join(seq_texts)
 
@@ -99,16 +111,21 @@ def clasiffierLSTM(cbp, tokenizer, model):
     X_seq = tokenizer.texts_to_sequences(seq)
 
     y_pred = model.predict_classes(X_seq)
+    final_pred_time = time.time()
     print("Predictions x_test: ", str(y_pred[0]))
+    print("Time Prediction: " + str(final_pred_time-start_pred_time) + " sg.")
 
     if y_pred[0]==1:
-        return "Identificate pathogen: SARS-CoV-2 | Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1(complete genome)"
+        return "Identificate pathogen: SARS-CoV-2 | Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1(complete genome)", str(final_pred_time-start_pred_time) + " sg."
     else:
-       return "No identificate pathogen SARS-CoV-2"
-
-
+       return "No identificate pathogen SARS-CoV-2", str(final_pred_time-start_pred_time) + " sg."
+    
 def createClassifierMNB(seq_data):
        
+    time_fit = 0.0
+    time_test = 0.0
+
+    start_fit_time = time.time()
     seq_data['words'] = seq_data.apply(lambda x: getKmers(x['SEQUENCE'],6), axis=1)
     seq_data = seq_data.drop('SEQUENCE', axis=1)
 
@@ -121,11 +138,15 @@ def createClassifierMNB(seq_data):
     # Now we will apply the BAG of WORDS using CountVectorizer using NLP
     # Creating the Bag of Words model using CountVectorizer()
     # This is equivalent to k-mer counting
-    # The n-gram size of 4 was previously determined by testing
-    cv = CountVectorizer(ngram_range=(4,4))
+    # The n-gram size of 3 was previously determined by testing
+    # Generate array of sentences for each 3 kmers
+    cv = CountVectorizer(ngram_range=(3,3))
     X = cv.fit_transform(seq_texts)
-
+    
+    #print(cv.vocabulary)
+    print(cv.get_feature_names())
     print(X.shape)
+    #(6061, 235373)
     
     # Splitting the human dataset into the training set and test set
     X_train, X_test, y_train, y_test = train_test_split(X, 
@@ -145,7 +166,12 @@ def createClassifierMNB(seq_data):
 
     MultinomialNB(alpha=0.1, class_prior=None, fit_prior=True)
 
+    final_fit_time = time.time()
+    time_fit = final_fit_time - start_fit_time
+
     y_pred = classifier.predict(X_test)
+    final_test_time = time.time()
+    time_test = final_test_time - final_fit_time
     print("Predictions x_test: ", y_pred[0:100])
 
     print("Confusion matrix\n")
@@ -166,11 +192,14 @@ def createClassifierMNB(seq_data):
     statistics += "<div>" + pd.crosstab(pd.Series(y_test, name='Actual'), 
         pd.Series(y_pred, name='Predicted')).to_html() + "</div>"
     statistics += "<div> accuracy = "+str(accuracy*100) + " % </div>" + "<div> precision = "+str(precision*100) + " % </div>" + "<div> recall = "+str(recall*100) + " % </div>" + "<div>"
+    statistics += "<div> time_fit = "+ str(time_fit) + " sg. </div>" 
+    statistics += "<div> time_test = "+ str(time_test) + " sg. </div>" 
 
     return cv, classifier, statistics
 
 def clasiffierMNB(cbp, cv, classifier):
  
+    start_pred_time = time.time()
     seq_texts = list(getKmers(cbp.querry_seq,6))
     seq_texts = ' '.join(seq_texts)
 
@@ -181,7 +210,11 @@ def clasiffierMNB(cbp, cv, classifier):
     X_seq = cv.transform(seq)
 
     print(X_seq.shape)
+    # clasification
     y_pred = classifier.predict(X_seq)
-    print("Predictions x_test: ", str(y_pred[0]))
+    final_pred_time = time.time()
 
-    return str(y_pred[0])
+    print("Predictions: ", str(y_pred[0]))
+    print("Time Prediction: " + str(final_pred_time-start_pred_time) + " sg.")
+
+    return str(y_pred[0]) , str(final_pred_time-start_pred_time) + " sg."

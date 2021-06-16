@@ -1,0 +1,3 @@
+MOLECULE_TYPE;ID;PROTEIN_ID;PROTEIN_NAME;SEQ_ID;NAME;SEQUENCE
+dna;4382;4;Synthase;D38113.1;Pan troglodytes mitochondrial dna, complete sequence;ATGAACGAAA
+dna;4381;2;Synthase;KX211955.1;Pan troglodytes verus isolate Donald mitochondrion, complete genome;ATGCCCCAACT

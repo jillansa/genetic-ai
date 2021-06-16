@@ -197,7 +197,6 @@ def find_seeds(querry_seq,db_seq,k,match_score,mismatch_score,seed_threshold):
     
 """ Extracts every possible kmer from a sequence."""
 def extract_kmers(sequence,k):
-    # return [sequence[x:x+k].lower() for x in range(len(sequence) - k + 1)]
     kmers=[]
     kmer = ""
     for i in range(len(sequence)-k+1):
@@ -273,25 +272,34 @@ def SmithWatermanMatrix(querry_seq,db_seq,querry_index,db_index,k,
    # create matrix SWM
    matrix = np.zeros((len(querry_seq),len(db_seq)))
    # initial value for seed evaluate to extend
-   matrix[querry_index+k-1][db_index+k-1] = initial_score   
+   matrix[querry_index+k-1][db_index+k-1] = initial_score
+   if (len(querry_seq) > querry_index+k):
+      matrix[querry_index+k][db_index+k-1] = initial_score + gap_score
+   if (len(db_seq) > db_index+k):
+      matrix[querry_index+k-1][db_index+k] = initial_score + gap_score
    row = 0
    col = 0
 
-   #continue = True
-   #Start building table from the kmer position
-   for i in range(querry_index+k,len(querry_seq)):
-        #if(not continue):
-        #   continue = True
+   cont = True
+   
+   # Start building table from the kmer position
+   # Inicializate index i,j
+   i = querry_index+k
+   j = db_index+k
+
+   while (i < len(querry_seq)):
+        #if(not cont):
+        #   cont = True
         #   break
 
         # evitar que nos salgamos del recorrido en i sobre querry seq
         if (i >= len(querry_seq)):   
            break
-
-        for j in range(db_index+k,len(db_seq)):
-
-           #if(not continue):
-           #    continue = True
+        
+        j_aux = j
+        while (j < len(db_seq)):
+           #if(not cont):
+           #    cont = True
            #    break
            R = 0
            C = 0
@@ -301,10 +309,11 @@ def SmithWatermanMatrix(querry_seq,db_seq,querry_index,db_index,k,
            else:
                # Evaluate mismatch
                D = matrix[i-1][j-1] + mismatch_score
-               # Evaluate Gap in db sequence
-               R = matrix[i][j-1] + gap_score
-               # Evaluate Gap in query sequence
-               C = matrix[i-1][j] + gap_score
+
+           # Evaluate Gap in db sequence
+           R = matrix[i][j-1] + gap_score
+           # Evaluate Gap in query sequence
+           C = matrix[i-1][j] + gap_score
                
            matrix[i][j] = np.max([D,R,C])
            row_score = matrix[i][j] 
@@ -315,7 +324,25 @@ def SmithWatermanMatrix(querry_seq,db_seq,querry_index,db_index,k,
                row = i
                col = j
            
-           # TODO: Acotar j, si cae muy por debajo del score inicial, no tiene sentido seguir valorando esa fila sobre j++   
+           # Acotar recoridos de la matriz, si hay match y es solucion optima, avanzar en la diagonal
+           if(querry_seq[i] == db_seq[j]):
+               if (D == np.max([D,R,C])):
+                   if (i+1 < len(querry_seq)):
+                       matrix[i+1][j] = matrix[i][j] + gap_score
+                   if (j+1 < len(db_seq)):
+                       matrix[i][j+1] = matrix[i][j] + gap_score
+                   j+=1
+                   break
+            
+           # Si no hay match, puede llegar el punto que no tenga sentido seguir evaluando posibles GAPs
+           if(querry_seq[i] != db_seq[j] and j > j_aux):  
+               if (matrix[i][j] + match_score < max_score):
+                j = j_aux
+                break
+           
+           j+=1
+
+           # j, si cae muy por debajo del score inicial, no tiene sentido seguir valorando esa fila sobre j++   
            #Break if we drop below threshold
            #if(i>= start_checking):
            #if(row_score < valorLimite):
@@ -324,13 +351,15 @@ def SmithWatermanMatrix(querry_seq,db_seq,querry_index,db_index,k,
                #col = j
                #break
            #else:
-           #     = row_score 
-       # TODO acortar la i en cada fila por delante u por detras
-       #if(row_score < valorLimite):
+           #= row_score 
+
+        # TODO acortar la i en cada fila por delante u por detras
+        #if(row_score < valorLimite):
            #continue = False
            #row = i
            #col = j
            #break
+        i+=1
    # finalizada la extension de la semilla
    
    # reconstruimos desde la mejor puntuacion matrix[row][col] hacia atras  
@@ -367,9 +396,19 @@ def SmithWatermanMatrix(querry_seq,db_seq,querry_index,db_index,k,
    querry_alignment = querry_alignment[::-1]
    db_alignment = db_alignment[::-1]                
    
+   querry_seq_aux=''
+   db_seq_aux=''
    # añadimos a las cadenas la parte de la semilla 
-   querry_alignment = querry_seq[querry_index:querry_index+k] + querry_alignment
-   db_alignment = db_seq[db_index:db_index+k] + db_alignment
+   for index in range(k):
+      if(querry_seq[querry_index+index]==db_seq[db_index+index]): 
+         querry_seq_aux += querry_seq[querry_index+index]
+         db_seq_aux += db_seq[db_index+index]
+      else:
+         querry_seq_aux += querry_seq[querry_index+index].lower()
+         db_seq_aux += db_seq[db_index+index].lower()
+
+   querry_alignment = querry_seq_aux + querry_alignment
+   db_alignment = db_seq_aux + db_alignment
     
    return max_score,querry_alignment,db_alignment
 

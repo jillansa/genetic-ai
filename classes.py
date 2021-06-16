@@ -17,12 +17,12 @@ class ConfigBlast:
 	
 	def __init__(self):
 		self.querry_seq = 'AAATCTGTTCGCTTCATT' #The querry sequence we search for
-		self.k = 5 #Word length
+		self.k = 8 #Word length
 		self.match_score = 2 #Score added on match occurunce in alignment
 		self.mismatch_score = -1 #Score added on mismatch occurunce in alignment
 		self.gap_score = -1 #Score added on gap occurunce in alignment
-		self.seed_threshold = 6 #The minimum score to considered a seed
-		self.num_secuences = 3 # Num of secuences to read from bd
+		self.seed_threshold = 12 #The minimum score to considered a seed
+		self.num_secuences = 10 # Num of secuences to read from bd
 
 class ConfigBlastProtein:
 	querry_seq = ''
