@@ -10,8 +10,8 @@ To use it is necessary to install the following libraries:
   Library to science data and machine learning: 
 
     pip install pandas
-    pip3 install sklern
-    pip3 install Matplotlib
+    pip install sklern
+    pip install Matplotlib
     pip install db-sqlite3
     pip install tensorflow
     pip install keras
