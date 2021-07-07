@@ -28,3 +28,9 @@ Then it can be executed by launching the following command:
 The web application will respond to requests in the URL:
 
 http://localhost:5000/
+
+The proyect is deploy in:
+http://bioinformaticawebsite.alwaysdata.net/
+
+Hosting by:
+https://admin.alwaysdata.com/
