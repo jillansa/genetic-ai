@@ -26,7 +26,8 @@ Presentation:
 
 
 Project document:
-https://github.com/jillansa/BioinformaticsWebsite/blob/main/TFG%20-%20Alineamiento%20de%20secuencias%20ADN%20-%20JuanFIllan.pdf
+[TFG - Alineamiento de secuencias ADN - JuanFIllan.pdf](https://github.com/jillansa/BioinformaticsWebsite/files/7807267/TFG.-.Alineamiento.de.secuencias.ADN.-.JuanFIllan.pdf)
+
 
 Then it can be executed by launching the following command:
 
