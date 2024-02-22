@@ -1,0 +1,79 @@
+<html>
+<head>
+    <title>BioInformatica Website </title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery-3.5.1.min.js') }}"></script>
+    
+</head>
+<body>
+    {% include "layout/header.html" %}
+
+<div class="container">
+
+    <div class="row">
+        Esta web es el resultado del TRABAJO FIN DE GRADO UNIVERSITARIO
+        <b>"Herramienta para el estudio del alineamiento de secuencias de ADN mediante DeepLearning"</b>
+    </div> 
+    <br>   
+    <div class="row">
+        Universidad Católica San Antonio de Murcia
+    </div>
+    <div class="row">
+        ESCUELA UNIVERSITARIA POLITECNICA
+    </div>
+    <div class="row">
+        Grado en Ingeniería Informática 
+    </div>  
+    <br>  
+    <div class="row">
+        Autor: Juan Francisco Illán Sánchez
+    </div>  
+    <div class="row">    Curso: 2020/21
+    </div>  
+    <br>  
+    <div class="row">
+        <b>IDENTIFICACIÓN DEL PROYECTO:</b>
+        <br>
+        El proyecto pretende una suite de laboratorio web para el alineamiento de secuencias genómicas. 
+        <br>
+        En bioinformatica el alineamiento pretende identificar similitudes entre una cadena genomica de consulta y una colección de cadenas en una base de datos. 
+        <br><br>
+        
+        El proyecto implementa 3 funcionalidades resueltas utilizando diferentes técnicas:
+        <br>Smith-Waterman – Heuristic Algorithm 
+        <br>Multinomial  Naive Bayes Classifier – Machine Learning
+        <br>LSTM Classifier – Machine Learning
+        
+        <br><br><b>Palabras clave:</b><br>Bioinformatica, alineamiento de secuencias, algoritmos heurísticos, redes neuronales, machine learning, clasificador bayes, identificación LSTM, python.
+    </div>
+    <br>
+    <br>
+
+    <div class="row">
+    <b>Desarrollado en:</b>
+    <br>python 3.7
+    <br>Flask, Html, boostrap, css, js,
+    <br> 
+    <br><b>Librerías especificas ciencia de datos / machine learning:</b>
+    <br>Numpy, Pandas
+    <br>Matplotlib
+    <br>sklearn.feature_extraction.text.CountVectorizer
+    <br>sklearn.naive_bayes .MultinomialNB
+    <br>Tensorflow
+    <br>keras.models import Model, Sequential
+    <br>keras.layers import Input, Dense, Embedding, LSTM
+    <br>
+    <br><b>Base de datos:</b> 
+    <br>Ficheros sobre disco en formato FASTA
+    </div>
+</div>
+
+<br/>
+<br/>
+
+{% include "layout/footer.html" %}
+
+</body>
+</html>

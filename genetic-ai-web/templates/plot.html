@@ -1,0 +1,27 @@
+<html>
+<head>
+    <title>BioInformatica Website </title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery-3.5.1.min.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>BioInformatica Website </h1>
+    </div>
+    <div class="container">
+        <div class="row">
+
+            <div class="container">
+                <h2>Filter Plot: {{filterPlot}} </h2>    
+            </div>
+            <br>
+
+            <div class="row">
+                <img src="{{url_for('static',filename='images/temp/')}}{{plotImage}}" alt="Chart" width="800" height="800">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
